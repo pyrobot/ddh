@@ -1,7 +1,7 @@
 // define the types that will be allowed to be passed
 // and how many bytes they each take to transfer
 var types = {
-	'string': NaN,
+	//'string': NaN,
 	'short': 1,
 	'ushort': 1,
 	'int': 2,

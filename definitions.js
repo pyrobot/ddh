@@ -1,6 +1,6 @@
 var protocol = require('./protocol');
 
 // testing
-protocol.define('test', [{x: 'uint'}, {y: 'uint'}], function (x, y) {
-	console.log("Received: %d, %d", x, y);
+protocol.define('test', [{x: 'ushort'}, {y: 'ushort'}], function (x, y) {
+	console.log("(test) parameters: %d, %d", x, y);
 });
