@@ -6,7 +6,19 @@ var server = net.createServer();
 
 var connections = [];
 server.on('connection', function (socket) {
-	socket.on('data', protocol.process);
+	socket.echo = function () {
+		for (var con in connections) {
+			console.log("con == socket ?" + (con === socket));
+			if (con != socket) {
+				con.write(protocol.run.apply(null, arguments));
+			}
+		}
+	}
+
+	socket.on('data', function (buf) {
+		protocol.process(buf, socket);
+	});
+
 	connections.push(socket);
 });
 

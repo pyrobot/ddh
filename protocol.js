@@ -44,6 +44,8 @@ function callServerFunction () {
 
 	serverFunc = functions[name];
 
+	console.log("Calling: " + name + " args: " + args[0] + ", " + args[1]);
+
 	if (serverFunc) {
 		return runServerFunction(name, args, serverFunc);
 	}
@@ -116,17 +118,17 @@ function runServerFunction (name, args, serverFunc) {
 	return sendBuf;
 }
 
-function process (buf) {
+function process (buf, socket) {
 	var ch = [].shift.call(buf); 
-
+	
 	if (ch === 0x0A) {
-		beginCommand(buf);
+		beginCommand(buf, socket);
 	} else if (ch === 0x1A) {
-		beginCommandSeries(buf);
+		beginCommandSeries(buf, socket);
 	}
 }
 
-function beginCommand (buf) {
+function beginCommand (buf, socket) {
 	var func = functions[buf[0]];
 	var args = [];
 	var offset = 1;
@@ -170,7 +172,7 @@ function beginCommand (buf) {
 			args.push(val);
 		}
 	})
-	func.callback.apply(null, args);
+	func.callback.apply(socket, args);
 }
 
 function beginCommandSeries (buf) {
