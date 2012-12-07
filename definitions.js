@@ -1,7 +1,15 @@
 var protocol = require('./protocol');
 
-// testing
-protocol.define('test', [{x: 'float'}, {y: 'float'}], function (x, y) {
-	console.log("(test) parameters: %d, %d", x, y);
-	//this.echo('durp', 1, 2);
+protocol.define('ping', [{x: 'float'}, {y: 'float'}], function (x, y) {
+	console.log("received ping; sending pong");
+	this.echo('pong', x, y);
 });
+
+protocol.define('pong', [{x: 'float'}, {y: 'float'}]);
+
+protocol.define('beep', [{x: 'float'}, {y: 'float'}], function (x, y) {
+	console.log("received beep; sending boop");
+	this.echo('boop', x, y);
+});
+
+protocol.define('boop', [{x: 'float'}, {y: 'float'}]);

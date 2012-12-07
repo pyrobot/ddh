@@ -44,8 +44,6 @@ function callServerFunction () {
 
 	serverFunc = functions[name];
 
-	console.log("Calling: " + name + " args: " + args[0] + ", " + args[1]);
-
 	if (serverFunc) {
 		return runServerFunction(name, args, serverFunc);
 	}
@@ -123,9 +121,10 @@ function process (buf, socket) {
 	
 	if (ch === 0x0A) {
 		beginCommand(buf, socket);
-	} else if (ch === 0x1A) {
-		beginCommandSeries(buf, socket);
-	}
+	} 
+	// else if (ch === 0x1A) {
+	// 	beginCommandSeries(buf, socket);
+	// }
 }
 
 function beginCommand (buf, socket) {
@@ -173,11 +172,6 @@ function beginCommand (buf, socket) {
 		}
 	})
 	func.callback.apply(socket, args);
-}
-
-function beginCommandSeries (buf) {
-	console.log('received command series: ');
-	// not implemented yet
 }
 
 module.exports = exports = {

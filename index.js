@@ -2,15 +2,25 @@ var net = require('net'),
 	protocol = require('./protocol'),
 	defs = require('./definitions');
 
-var server = net.createServer();
+var masterServer = net.createServer(),
+	slaveServer = net.createServer();
 
-var connections = [];
-server.on('connection', function (socket) {
+var masterSocket,
+	slaveSocket;
+
+masterServer.on('connection', function (socket) {
+	if (masterSocket == null) {
+		masterSocket = socket;
+	} else {
+		socket.end('server is full\n');
+	}
+
 	socket.echo = function () {
-		for (var con in connections) {
-			console.log("con == socket ?" + (con === socket));
-			if (con != socket) {
-				con.write(protocol.run.apply(null, arguments));
+		if (slaveSocket) {
+			try {
+				slaveSocket.write(protocol.run.apply(null, arguments));
+			} catch (err) {
+				slaveSocket = null;
 			}
 		}
 	}
@@ -18,18 +28,32 @@ server.on('connection', function (socket) {
 	socket.on('data', function (buf) {
 		protocol.process(buf, socket);
 	});
-
-	connections.push(socket);
 });
 
-server.on('listening', function () {
-	var address = server.address();
-	console.log('listening on: (%s:%s)' 
-	          , address.address === '0.0.0.0' 
-	            ? 'localhost' 
-	            : address.address
-	          , address.port
-	);
+slaveServer.on('connection', function (socket) {
+	if (slaveSocket == null) {
+		slaveSocket = socket;
+	} else {
+		socket.end('server is full\n');
+	}
+
+	socket.echo = function () {
+		if (masterSocket) {
+			try {
+				masterSocket.write(protocol.run.apply(null, arguments));
+			} catch (err) {
+				masterSocket = null;
+			}
+		}
+	}
+
+	socket.on('data', function (buf) {
+		protocol.process(buf, socket);
+	});
 });
 
-server.listen(1337);
+masterServer.listen(1337);
+console.log("Master started on port 1337");
+
+slaveServer.listen(1338);
+console.log("Slave started on port 1338");
